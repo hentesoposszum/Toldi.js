@@ -332,7 +332,7 @@ Toldi can automatically set up a route for every file in a directory using the a
 autoRoute(path : String, root : String, recursive : Boolean, extensionMap : Object)
 ```
 
-Toldi will go through every file in the directory specified by *path* and setup a route and a GET method handler each one, which simply returns the file's content.
+Toldi will go through every file in the directory specified by *path* and setup a route and a GET method handler for each one, which simply returns the file's content.
 *root* is a prefix for the URL path (e.g. if there's a file named master.css in the directory and the root is /css, the file will have the following URL: /css/master.css).
 If *recursive* is set to true, Toldi will also setup routes for files in subdirectories. These will have the subdirectory name in their URL (root/directory/subdirectory/file).
 recursive is set to true by default, so it can be omitted in most cases.
