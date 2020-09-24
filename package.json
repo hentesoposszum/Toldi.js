@@ -1,0 +1,9 @@
+{
+	"name": "ToldiJS",
+	"version": "1.0.0",
+	"description": "A light-weight Node.js framework for request routing.",
+	"main": "src/toldi.js",
+	"author": "rav",
+	"license": "MIT",
+	"private": "true"
+}
