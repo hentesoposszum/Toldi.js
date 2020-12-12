@@ -314,7 +314,7 @@ LIMITATIONS: This simply sends a 302 response to the client, with the path as th
 
 #### Setup
 
-To use these middlewares the *setupMiddlewares* function is used.
+To take advantage of these middlewares the *setupMiddlewares* function is used.
 
 ```javascript
 setupMiddlewares(useBodyParser : Boolean, useCookieParser : Boolean, useQueryParser: Boolean, addRedirectToResponse : Boolean);
@@ -324,9 +324,34 @@ The arguments are set to true by default, you only have to provide them if you d
 
 ## Utilities
 
+### Debug Mode
+
+Some features of Toldi can only be accessed while it's running in debug mode. These should only be used while developing, testing and debugging your server, and NOT IN PRODUCTION.
+
+Debug mode can be enabled in one of two ways:
+
+1. By setting the TOLDI_DEBUG environment variable to any value
+
+   This is the advised method of enabling debug mode, as the other way can easily lead to Toldi running in debug mode in production, if the function call is not deleted from the final product.
+
+2. Using the *setDebugMode* function
+
+   ```javascript
+   setDebugMode(value : Boolean)
+   ```
+
+   This function can be used to enable or disable debug mode. The value parameter (which defaults to **true**) specifies whether you want to enable or disable debug mode.
+   **NOTE:** If you enable debug mode this way, don't forget to remove this function call before running the server in production (or more ideally, before pushing the code to a public repository).
+
+You can always check whether or not Toldi is running in debug mode with the *getDebugMode* function. This will either return **true** or **false**.
+
+```javascript
+getDebugMode()
+```
+
 ### autoRoute
 
-Toldi can automatically set up a route for every file in a directory using the autoRoute function.
+Toldi can automatically set up a route for every file in a directory using the *autoRoute* function.
 
 ```javascript
 autoRoute(path : String, root : String, recursive : Boolean, extensionMap : Object)
