@@ -1,4 +1,4 @@
-# ToldiJS
+# Toldi.js
 
 *routin' u*
 
