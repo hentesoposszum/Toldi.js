@@ -4,6 +4,8 @@ const { join } = require("path");
 const { EventEmitter } = require("events");
 
 let debugMode = process.env.TOLDI_DEBUG ? true : false;
+if (debugMode)
+	console.warn("WARNING: Toldi is running in debug mode");
 
 /**
  * @typedef {import("http").IncomingMessage} IncomingMessage
@@ -562,6 +564,9 @@ exports.setDebugMode = (value=true) => {
 		throw new TypeError(`Expected a Boolean value, received ${typeof value} instead`);
 
 	debugMode = value;
+
+	if (debugMode)
+		console.warn("WARNING: Toldi is now running in debug mode");
 };
 
 /**
