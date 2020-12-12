@@ -3,6 +3,8 @@ const { parse } = require("url");
 const { join } = require("path");
 const { EventEmitter } = require("events");
 
+let debugMode = process.env.TOLDI_DEBUG ? true : false;
+
 /**
  * @typedef {import("http").IncomingMessage} IncomingMessage
  * @typedef {import("http").ServerResponse} ServerResponse
@@ -231,7 +233,7 @@ exports.routes = [];
  */
 exports.middlewares = [];
 
-/**l
+/**
  * Enables common middlewares (SETUP)
  * @param {Boolean} [useBodyParser=true] - use the body parsing middleware
  * @param {Boolean} [useCookieParser=true] - use the cookie parsing middleware
@@ -542,6 +544,25 @@ function splitWithoutEmptyStrings(data, separator) {
 
 	return result;
 }
+
+/**
+ * Returns whether or not debug mode is enabled
+ * @returns {Boolean} true if debug mode is enabled, false otherwise
+ */
+exports.getDebugMode = () => {
+	return debugMode;
+};
+
+/**
+ * Either enables or disables debug mode
+ * @param {Boolean} [value=true] - whether debug mode should be enabled or disabled
+ */
+exports.setDebugMode = (value=true) => {
+	if (typeof value !== "boolean")
+		throw new TypeError(`Expected a Boolean value, received ${typeof value} instead`);
+
+	debugMode = value;
+};
 
 /**
  * Sets up a route for every file in a specified directory (SETUP)
