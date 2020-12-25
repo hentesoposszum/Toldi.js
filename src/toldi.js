@@ -1,4 +1,4 @@
-const { readFileSync, readdirSync, statSync } = require("fs");
+const { readFileSync, readdirSync, statSync, readFile } = require("fs");
 const { parse } = require("url");
 const { join } = require("path");
 const { EventEmitter } = require("events");
@@ -575,38 +575,62 @@ exports.setDebugMode = (value=true) => {
  * @param {String} [root=path] - the path of where the URLs should start from (e.g. "about" -> "about/index.html", "about/style.css", etc.)
  * @param {Boolean} [recursive=true] - setup subdirectories recursively
  * @param {String} [method="GET"] - HTTP method for the routes
+ * @param {Boolean} [readFromDisk=false] - don't store the files' content in memory, read it from disk on every request (DEBUG ONLY)
  * @param {Object} extensionMap - map for finding the MIME type from extensions (e.g. extensionMap["js"] -> "text/javascript")
  */
-exports.autoRoute = (path, root=path, recursive=true, method="GET", extensionMap) => {
+exports.autoRoute = (path, root=path, recursive=true, method="GET", readFromDisk=false, extensionMap) => {
+	if (readFromDisk && !debugMode) {
+		emitter.emit("error", new Error("Tried to use a debug mode only feature outside of debug mode (autoRoute function readFromDisk parameter). Falling back to readFromDisk = false"));
+		readFromDisk = false;
+	}
+
 	if (!extensionMap)
 		extensionMap = JSON.parse(readFileSync(join(__dirname, "type-map.json")));
 
 	const fileList = readdirSync(path);
 
-    for (const file of fileList) {
-        if (statSync(join(path, file)).isDirectory()) {
+	for (const file of fileList) {
+		if (statSync(join(path, file)).isDirectory()) {
 			if (recursive) {
-				this.autoRoute(join(path, file), join(root, file), recursive, method, extensionMap);
+				this.autoRoute(join(path, file), join(root, file), recursive, method, readFromDisk, extensionMap);
 			}
-        } else {
-            const fileParts = file.split("."), extension = fileParts[fileParts.length - 1];
-            const contentType = extensionMap[extension];
+		} else {
+			const fileParts = file.split("."), extension = fileParts[fileParts.length - 1];
+			const contentType = extensionMap[extension];
 
-            if (contentType) {
-                const content = readFileSync(join(path, file));
+			if (contentType) {
+				if (readFromDisk) {
+					this.route(join(root, file)).addHandler(method, (req, res) => {
+						readFile(join(path, file), (err, data) => {
+							if (err) {
+								emitter.emit("error", err);
+								return;
+							}
 
-                this.route(join(root, file)).addHandler(method, (req, res) => {
-                    res.writeHead(200, {
-						"Content-Type": contentType,
-						"Content-Length": Buffer.byteLength(content)
-                    });
-                    res.end(content);
-                });
-            } else {
+							res.writeHead(200, {
+								"Content-Type": contentType,
+								"Content-Length": data.byteLength
+							});
+							res.end(data);
+						})
+					});
+				} else {
+					const content = readFileSync(join(path, file));
+
+					this.route(join(root, file)).addHandler(method, (req, res) => {
+						res.writeHead(200, {
+							"Content-Type": contentType,
+							"Content-Length": content.byteLength
+						});
+						res.end(content);
+					});
+				}
+
+			} else {
 				emitter.emit("error", new Error(`autoRoute(${path}): Skipping file: ${file}, unknown extension`));
 			}
-        }
-    }
+		}
+	}
 }
 
 /**
