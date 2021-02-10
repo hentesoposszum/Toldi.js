@@ -1,5 +1,7 @@
-exports.init = responses => {
-	this.responses = responses || {};
+let responses;
+
+exports.init = resps => {
+	responses = resps || {};
 	
 	/**
 	 * Body parsing middleware
@@ -10,7 +12,7 @@ exports.init = responses => {
 	exports.bodyParser = (req, res, done) => {
 		function reportInvalidSyntax() {
 			res.writeHead(400, {"Content-Type": "text/html"});
-			res.end(this.responses["400b"] || "400");
+			res.end(responses["400b"] || "400");
 		}
 
 		const data = [];
@@ -40,7 +42,7 @@ exports.init = responses => {
 				
 				case "application/json":
 					try {
-						req.body = JSON.parse(body);
+						req.body = JSON.parse(body.trim());
 					} catch (err) {
 						return reportInvalidSyntax();
 					}
@@ -53,7 +55,7 @@ exports.init = responses => {
 			
 				default:
 					res.writeHead(415, {"Content-Type": "text/html"});
-					res.end(this.responses["415"] || "415");
+					res.end(responses["415"] || "415");
 					return;
 			}
 
@@ -79,7 +81,7 @@ exports.init = responses => {
 
 		if (query === null) {
 			res.writeHead(400, {"Content-Type": "text/html"});
-			res.end(this.responses["400q"] || "400");
+			res.end(responses["400q"] || "400");
 			return;
 		}
 
@@ -96,7 +98,7 @@ exports.init = responses => {
 	exports.cookieParser = (req, res, done) => {
 		function reportInvalidSyntax() {
 			res.writeHead(400, {"Content-Type": "text/html"});
-			res.end(this.responses["400c"] || "400");
+			res.end(responses["400c"] || "400");
 		}
 
 		const cookies = {};
@@ -111,7 +113,7 @@ exports.init = responses => {
 		let keyBuffer = "", valueBuffer = "", readingKey = true;
 
 		for (let i = 0; i < cookieString.length; i++) {
-			if (cookieString[i] === "=") {
+			if (readingKey && cookieString[i] === "=") {
 				if (keyBuffer === "")
 					return reportInvalidSyntax();
 
