@@ -5,6 +5,7 @@
 # Disclaimer
 
 This framework only takes care of request routing. It does not set up or manage a web server.
+Also, this is more of a fun side project than a serious routing framework, so **PLEASE DO NOT USE IT IN ANY KIND OF PRODUCTION ENVIRONMENT**.
 
 # Usage
 
